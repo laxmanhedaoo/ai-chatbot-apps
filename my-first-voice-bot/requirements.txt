@@ -1,0 +1,5 @@
+livekit-agents==1.5.1
+livekit-plugins-silero==1.5.2
+livekit-plugins-google==1.5.4
+livekit-plugins-deepgram==1.5.2
+python-dotenv==1.2.2

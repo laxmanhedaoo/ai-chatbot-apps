@@ -1,0 +1,12 @@
+[project]
+name = "my-first-voice-bot"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.14"
+dependencies = [
+    "livekit-agents[all]==1.5.4",
+    "livekit-plugins-google==1.5.1",
+    "livekit-plugins-silero==1.5.1",
+    "python-dotenv==1.2.2",
+]
