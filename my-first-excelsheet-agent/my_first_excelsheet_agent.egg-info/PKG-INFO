@@ -1,0 +1,9 @@
+Metadata-Version: 2.4
+Name: my-first-excelsheet-agent
+Version: 0.1.0
+Summary: AI-Powered Google Sheets Chat Assistant
+Author: Your Name
+Requires-Dist: streamlit>=1.30.0
+Requires-Dist: requests>=2.31.0
+Requires-Dist: pandas>=2.0.0
+Requires-Dist: google-generativeai>=0.3.0

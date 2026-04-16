@@ -1,0 +1,186 @@
+import argparse
+import asyncio
+import json
+import logging
+import os
+from typing import Any, Optional
+
+from dotenv import load_dotenv
+from upstash_redis.asyncio import Redis
+
+# ============================================================
+# LOGGING CONFIG
+# ============================================================
+
+logging.basicConfig(level=logging.INFO, format="%(levelname)s: %(message)s")
+logger = logging.getLogger("generate_env")
+
+load_dotenv()
+
+# ============================================================
+# ENV HELPERS
+# ============================================================
+
+def get_env_var(
+    name: str, required: bool = True, default: Optional[str] = None
+) -> Optional[str]:
+    value = os.getenv(name, default)
+    if required and value is None:
+        logger.error(f"Missing required environment variable: {name}")
+        raise ValueError(f"Missing required environment variable: {name}")
+    return value
+
+
+# ============================================================
+# REDIS CLIENT (FROM YOUR PROVIDED SCRIPT)
+# ============================================================
+
+async def get_redis_client() -> Redis:
+    url = "https://open-blowfish-11208.upstash.io" 
+    token = "ASvIAAIjcDE2ZmY0YTM1NzE4OGQ0NDFkOGNlZTRlYmY3ZGVkNzY4OHAxMA"
+    return Redis(url=url, token=token)
+
+
+# ============================================================
+# CONFIG PARSER
+# ============================================================
+
+def flatten_config(config_json: dict[str, Any]) -> dict[str, Any]:
+    flat = {}
+
+    config = config_json.get("config", {})
+
+    if isinstance(config, dict):
+        for key, value in config.items():
+            if isinstance(value, dict):
+                flat[key] = json.dumps(value)
+            else:
+                flat[key] = value
+
+    elif isinstance(config, list):
+        for item in config:
+            key = item.get("key")
+            value = item.get("value")
+            if key and value is not None:
+                flat[key] = value
+
+    return flat
+
+
+# ============================================================
+# CLI
+# ============================================================
+
+def parse_args():
+    parser = argparse.ArgumentParser(description="Generate .env from Upstash")
+    parser.add_argument("--profile", type=str, default="dev")
+    return parser.parse_args()
+
+
+# ============================================================
+# MAIN
+# ============================================================
+
+async def main():
+    args = parse_args()
+    profile = args.profile
+
+    logger.info("Starting .env generation...")
+
+    mappings = [
+        ("ENV", None, "dev"),
+        ("PROFILE", None, profile),
+        ("MAX_JOBS", None, "1"),
+
+        ("SIP_OUTBOUND_TRUNK_ID", "SIP_OUTBOUND_TRUNK_ID", ""),
+
+        ("LIVEKIT_API_KEY", "LIVEKIT_API_KEY", ""),
+        ("LIVEKIT_API_SECRET", "LIVEKIT_API_SECRET", ""),
+        ("LIVEKIT_URL", "LIVEKIT_URL", ""),
+
+        ("UPSTASH_REDIS_URL", "UPSTASH_REDIS_URL", ""),
+        ("UPSTASH_REDIS_TOKEN", "UPSTASH_REDIS_TOKEN", ""),
+
+        ("AZURE_OPENAI_API_KEY", "AZURE_OPENAI_API_KEY", ""),
+        ("AZURE_SPEECH_API_KEY", "AZURE_SPEECH_API_KEY", ""),
+        ("AZURE_SPEECH_REGION", "AZURE_SPEECH_REGION", ""),
+
+        ("OPEN_AI_API_KEY", "OPEN_AI_API_KEY", ""),
+        ("DEEPGRAM_API_KEY", "DEEPGRAM_API_KEY", ""),
+
+        ("AWS_ACCESS_KEY_ID", "AWS_ACCESS_KEY_ID", ""),
+        ("AWS_SECRET_ACCESS_KEY", "AWS_SECRET_ACCESS_KEY", ""),
+        ("AWS_REGION", "AWS_REGION", ""),
+        ("AWS_VOICE_ID", "AWS_VOICE_ID", ""),
+
+        ("GOOGLE_AGENT_API_KEY", "GOOGLE_AGENT_API_KEY", ""),
+        ("GOOGLE_SA_JSON", "GOOGLE_SA_JSON", ""),
+
+        ("CARTESIA_API_KEY", "CARTESIA_API_KEY", ""),
+        ("CARTESIA_VOICE_ID", "CARTESIA_VOICE_ID", ""),
+    ]
+
+    # --------------------------------------------------------
+    # FETCH FROM REDIS
+    # --------------------------------------------------------
+
+    flat_config = {}
+
+    try:
+        redis = await get_redis_client()
+        await redis.ping()
+
+        redis_key = f"config:env:{profile}"
+        logger.info(f"Fetching config from: {redis_key}")
+
+        raw = await redis.get(redis_key)
+
+        if raw:
+            config_json = json.loads(raw)
+            flat_config = flatten_config(config_json)
+            logger.info(f"Loaded {len(flat_config)} keys from Upstash")
+        else:
+            logger.warning("No config found in Upstash")
+
+    except Exception as e:
+        logger.error(f"Redis error: {e}")
+
+    # --------------------------------------------------------
+    # BUILD ENV
+    # --------------------------------------------------------
+
+    env_lines = []
+
+    for env_key, upstash_key, default_val in mappings:
+        value = default_val
+
+        if upstash_key and upstash_key in flat_config:
+            value = flat_config[upstash_key]
+
+        if isinstance(value, dict):
+            value = json.dumps(value)
+
+        env_lines.append(f"{env_key}={value or ''}\n")
+
+    # --------------------------------------------------------
+    # WRITE FILE
+    # --------------------------------------------------------
+
+    output_path = os.path.join(os.getcwd(), ".env")
+
+    try:
+        with open(output_path, "w", encoding="utf-8") as f:
+            f.writelines(env_lines)
+
+        logger.info(f"✅ .env generated successfully at: {output_path}")
+
+    except Exception as e:
+        logger.error(f"Failed to write .env: {e}")
+
+
+# ============================================================
+# ENTRY POINT
+# ============================================================
+
+if __name__ == "__main__":
+    asyncio.run(main())

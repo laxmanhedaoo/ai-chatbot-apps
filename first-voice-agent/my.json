@@ -1,0 +1,42 @@
+{
+  "metadata": {
+    "env": "dev",
+    "plan": "no plan",
+    "client": ""
+  },
+  "config": {
+    "SIP_OUTBOUND_TRUNK_ID": "",
+    "LIVEKIT_API_KEY": "",
+    "LIVEKIT_API_SECRET": "",
+    "LIVEKIT_URL": "",
+    "UPSTASH_REDIS_URL": "",
+    "UPSTASH_REDIS_TOKEN": "",
+    "AZURE_OPENAI_API_KEY": "",
+    "AZURE_SPEECH_API_KEY": "",
+    "AZURE_SPEECH_REGION": "centralindia",
+    "AZURE_OPENAI_DEPLOYMENT": "heedo-gpt", 
+    "AZURE_VOICE_ID": "",
+    "OPEN_AI_API_KEY": "",
+    "DEEPGRAM_API_KEY": "",
+    "AWS_ACCESS_KEY_ID": "",
+    "AWS_SECRET_ACCESS_KEY": "",
+    "AWS_REGION": "ap-south-1",
+    "AWS_VOICE_ID": "",
+    "GOOGLE_AGENT_API_KEY": "",
+    "GOOGLE_SA_JSON": {
+  "type": "",
+  "project_id": "",
+  "private_key_id": "",
+  "private_key": "",
+  "client_email": "",
+  "client_id": "",
+  "auth_uri": "",
+  "token_uri": "",
+  "auth_provider_x509_cert_url": "",
+  "client_x509_cert_url": "",
+  "universe_domain": "googleapis.com"
+},
+    "CARTESIA_API_KEY": "",
+    "CARTESIA_VOICE_ID": ""
+  }
+}

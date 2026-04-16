@@ -1,0 +1,14 @@
+INFO:livekit:livekit_ffi::server:139:livekit_ffi::server - initializing ffi server v0.12.28
+INFO:livekit:livekit_ffi::cabi:36:livekit_ffi::cabi - initializing ffi server v0.12.28
+INFO:interview-agent:Starting LiveKit Interview Agent Worker...
+Usage: outbound_agent.py [OPTIONS] COMMAND [ARGS]...
+
+Options:
+  --help  Show this message and exit.
+
+Commands:
+  connect         Connect to a specific room
+  console         Start a new chat
+  dev             Start the worker in development mode
+  download-files  Download plugin dependency files
+  start           Start the worker in production mode.

@@ -1,0 +1,12 @@
+README.md
+app.py
+charts.py
+data_handler.py
+gemini_client.py
+pyproject.toml
+ui_components.py
+my_first_excelsheet_agent.egg-info/PKG-INFO
+my_first_excelsheet_agent.egg-info/SOURCES.txt
+my_first_excelsheet_agent.egg-info/dependency_links.txt
+my_first_excelsheet_agent.egg-info/requires.txt
+my_first_excelsheet_agent.egg-info/top_level.txt
